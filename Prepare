@@ -1,0 +1,94 @@
+11/26 - First we wanted to add a few extra columns to the data before we go into analysis. I did this in BigQuery instead of Google Sheets because of the file size. Then I realized that this was going to take forever if I did it per dataset (which was 1 dataset per month starting from April 2020 to October 2023). So I just opted to do the following: 
+
+1) Create a dataset called Trip_Data. This stored every month's trip data. 
+2) Load all the months into separate tables under Trip_Data. 
+3) Create another dataset called Annual_Trip_Data.
+4) Ran a UNION ALL query that combined all of the datasets of the same year into one table. 
+
+The result would be that I had tables that contained datasets for every year (2020 - 2023).
+
+Here is the first query I did before I realized how time-consuming this would have been: 
+
+          SELECT  
+            *,
+            ended_at - started_at AS ride_length,
+            FORMAT_TIMESTAMP('%A', started_at) AS day_of_week
+          FROM `case-study-bike-share-406305.Trip_Data.May 2021
+
+Here is the second query I did that combined all tables from 2021 into one table: 
+
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.01-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.02-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.03-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.04-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.05-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.06-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.07-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.08-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.09-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.10-2021`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.11-2021`
+          UNION ALL ORDER BY
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.12-2021`
+          ORDER BY started_at
+
+I ran into an error when combining 12-2020 with the rest of the tables. The problem was that start_station_id and end_station_id were STRING and not INTEGERS. 
+Here's my process for fixing it: 
+
+1) First I had to use SAFE_CAST to make them all integers: 
+
+          SELECT
+            SAFE_CAST(start_station_id AS int64) AS start_station_id_1,
+            SAFE_CAST(end_station_id AS int64) AS end_station_id_1
+          FROM `case-study-bike-share-406305.Trip_Data.12-2020`;
+
+2) After I had all the right fields and data types, the query didn’t want to combine the rest of the 2020 tables with 12-2020 because the latter was in a different order. First started with deleting the first iterations of start_station_id and end_station_id from 12-2020. 
+
+          ALTER TABLE `case-study-bike-share-406305.Trip_Data.12-2020`
+          DROP COLUMN start_station_id,
+          DROP COLUMN end_station_id;
+
+3) Now that the old fields were deleted, I gave the new fields (start_station_id_1 and end_station_id_1) the names of the deleted fields. This way, the UNION ALL would work more smoothly:
+
+          ALTER TABLE `case-study-bike-share-406305.Trip_Data.12-2020`
+          RENAME COLUMN start_station_id_1 TO start_station_id
+          RENAME COLUMN end_station_id_1 TO end_station_id
+
+4) Now I had to take the fields from 12-2020 and create a new table with the same field order as the aggregated 2020 table. 
+
+          CREATE TABLE `case-study-bike-share-406305.Trip_Data.New_12-2020` AS
+          SELECT
+              ride_id,
+              rideable_type,
+              started_at,
+              ended_at,
+              start_station_name,
+              start_station_id,
+              end_station_name,
+              end_station_id,
+              start_lat,
+              start_lng,
+              end_lat,
+              end_lng,
+              member_casual,
+              ride_length,
+              day_of_week
+          FROM `case-study-bike-share-406305.Trip_Data.12-2020`;
+
+5) The new table, New_12-2020 has the same field order as that of the aggregated 2020 table. Now I can combine them using UNION ALL. The result is shared in another dataset called Annual_Trip_Date. 
+
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.Trip Data 2020`
+          UNION ALL
+          SELECT * FROM `case-study-bike-share-406305.Trip_Data.New_12-2020`
+
+Now that I have everything where I need it, I can do some cleaning. 
