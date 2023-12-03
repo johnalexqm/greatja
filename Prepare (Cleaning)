@@ -1,0 +1,118 @@
+11/28 - start_station_id and end_station_id in the 2020 Trip Data were INT64 and not STRING. I had to make the data types consistent if I wanted to do a proper analysis. The other datasets didn't need any changes in their data types. 
+
+          SELECT 
+              ride_id,
+              rideable_type,
+              started_at,
+              ended_at,
+              start_station_name,
+              CAST(start_station_id AS STRING) as start_station_id1,
+              end_station_name,
+              CAST(end_station_id AS STRING) as end_station_id1,
+              start_lat,
+              start_lng,
+              end_lat,
+              end_lng,
+              member_casual,
+              ride_length,
+              day_of_week
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Trip Data 2020`
+
+Afterwards, I wanted to do a general NULL check to see how many values were null in my data sets. I wrote the following query, then repeated it for the rest of the years. 
+
+          SELECT 
+            COUNTIF(ride_id IS NULL) AS Empty_Ride_ID,
+            COUNTIF(rideable_type IS NULL) AS Empty_rideable_type,
+          --Can't do a COUNTIF on started_at because that field is a TIMESTAMP.
+          --Can't do a COUNTIF on ended_at because that field is a TIMESTAMP.
+            COUNTIF(start_station_name IS NULL) AS Empty_start_station_name,  
+            COUNTIF(start_station_id IS NULL) AS Empty_start_station_id,
+            COUNTIF(end_station_name IS NULL) AS Empty_end_station_name,
+            COUNTIF(end_station_id IS NULL) AS Empty_end_station_id,
+            COUNTIF(start_lat = 0) AS Empty_start_lat,
+            COUNTIF(start_lng = 0) AS Empty_start_lng,
+            COUNTIF(end_lat = 0) AS Empty_end_lat,
+            COUNTIF(end_lng = 0) AS Empty_end_lng,
+            COUNTIF(member_casual IS NULL) AS Empty_member_casual,
+          --Can't do a COUNTIF on a ride_length because that field is an INTERVAL. 
+            COUNTIF(day_of_week = "NULL") AS Empty_day_of_week
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Trip Data 2020` 
+
+I have an idea of how many and which values are NULL in my datasets. After seeing the results, I've decided to remove the rows that have a null value in any of the fields above. It is important to note that ride_id, rideable_type, and member_casual were always populated. If any of the remaining fields were missing from any row, I removed them from the final dataset to review. This is because I cannot just research where that trip started/ended. Furthermore, if I don't know where it started/ended, then I cannot conduct a proper analysis. 
+
+          SELECT
+          * 
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Trip Data 2020`
+          WHERE 
+            NOT(
+            ride_id IS NULL OR
+            rideable_type IS NULL OR
+            started_at IS NULL OR
+            ended_at IS NULL OR
+            start_station_name IS NULL OR 
+            start_station_id IS NULL OR
+            end_station_name IS NULL OR
+            end_station_id IS NULL OR
+            start_lat IS NULL OR
+            start_lng IS NULL OR
+            end_lat IS NULL OR
+            end_lng IS NULL OR
+            member_casual IS NULL OR
+            ride_length IS NULL OR
+            day_of_week IS NULL) 
+
+Now that I have all of the invalid rows cleared, I wanted to do a duplication removal. Since the ride_id is the primary key of the datasets, I used that as my condition for being a duplicate. 
+         
+
+          SELECT 
+            ride_id
+          --When doing this for the other years, just chang the year in the FROM function
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.2020 Trip Data No Nulls`
+          GROUP by ride_id
+          HAVING COUNT(ride_id) > 1
+
+
+I know which ride_id's are duplicates now. Surprisingly, only the 2020 data set had that issue. Before I can go ahead and delete, I need to verify that they are indeed duplicates / rows that shouldn't exist due to a mistaken double entry. 
+
+          SELECT *
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.2020 Trip Data No Nulls`
+          WHERE ride_id IN (
+         [list of duplicate ride_id's] 
+          );
+
+After I ran this query, I noticed that the values for started_at in some of these rows was after the value for ended_at. In layman's terms, the rider started the ride on, for example, December 15th and ended on November 25th. I've decided to remove these rows. Since BigQuery has a paywall for features like DELETE, I'll just query the rows where the started daytime is NOT greater than the ended daytime. Just for an added measure, I'll remove the ones where the ride_length is 0 as well. 
+
+          SELECT *
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.2020 Trip Data No Nulls`
+          WHERE NOT((started_at > ended_at) OR (started_at = ended_at))
+
+This will get saved now as a new table. I ran this query again for the other years. By this point, we have removed duplicates, rides with invalid times, and rows that have a null value where a value is necessary. 
+
+Finally, I can't work with ride_length because it is in an INTERVAL. So I have to convert the rows in that field using TIMESTAMP_DIFF. This way, it returns how many minutes have passed between ended_at and started_at. For now, I have ride_length, but the INTERNVAL datatype doesn't help. 
+          
+          SELECT 
+            ride_id,
+            rideable_type,
+            started_at,
+            ended_at,
+            start_station_name,
+            start_station_id,
+            end_station_name,
+            end_station_id,
+            start_lat,
+            start_lng,
+            end_lng,
+            member_casual,
+            timestamp_diff(ended_at, started_at, MINUTE) as ride_min_length,
+            day_of_week
+          --Change the year to apply this to other annual datasets. 
+           FROM `case-study-bike-share-406305.Annual_Trip_Data.Dedup 2022` 
+
+Now I think we're ok! 
+I have done the following: 
+  1) Removed rows with NULL values in important fields. 
+  2) Deduped the data, which led me to doing (3). 
+  3) Removed illogical rows where the start time was after the end time. 
+  4) Converted a field into a more workable format.  
+
+I can now proceed with conducting a more comprehensive analysis. 
