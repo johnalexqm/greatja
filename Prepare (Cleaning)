@@ -101,6 +101,7 @@ I can't work with ride_length because it is in an INTERVAL. So I have to convert
             end_station_id,
             start_lat,
             start_lng,
+            end_lat,
             end_lng,
             member_casual,
             timestamp_diff(ended_at, started_at, MINUTE) as ride_min_length,
