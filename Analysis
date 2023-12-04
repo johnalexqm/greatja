@@ -1,0 +1,577 @@
+Now that the data is clean, I can do analysis. I looked at the following: 
+  1) Average, Mean, Mode per Year (2020-2023)
+  2) Average, Mean, Mode per Month (2020-2023)
+  3) Average, Mean, Mode per Day (2020-2023)
+  4) Rideable Type (2020-2023)
+  5) Trip Counts (2020-2023)
+
+Each average, mean, and mode pertained to the ride_min_length column I created. That column measures how much time the trip took. I took out the outliers and any trip that was just 0. 
+
+1) Average, Mean, Mode per Year (2020-2023) also splits the averages and maxes into casual and member rides, so I know the differences between the two rider types. 
+
+          --Start with 2020
+          SELECT
+          --Mark it '2020' for the table
+            '2020' as Year,
+          --Subquery to find the average for casual ride lengths
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6` 
+            WHERE member_casual = 'casual'
+          --For every subquery, had to limit to 1 or else I'll get a long list. 
+            LIMIT 1) as Average_Casual_Ride_Length,
+          --Subquery to find the max for casual ride lengths
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Max_Casual_Ride_Length,
+          --Subquery to find the average for member ride lengths
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Average_Member_Ride_Length,
+          --Subquery to find the max for member ride lengths
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Max_Member_Ride_Length,
+          --Subquery to find mode for day among casual riders
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+              WHERE member_casual = 'casual'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Casual,
+          --Subquery to find mode for day among member riders
+              (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+              WHERE member_casual = 'member'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Member
+           FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+           GROUP BY Year
+          --UNION ALL so that I can combine all the years together. Then just repeat the queries above for the other years.
+          UNION ALL 
+          
+          SELECT
+            '2021' as Year,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6` 
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Average_Casual_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Max_Casual_Ride_Length,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Average_Member_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Max_Member_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+              WHERE member_casual = 'casual'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Casual,
+              (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+              WHERE member_casual = 'member'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Member
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+          GROUP BY Year
+          
+          UNION ALL 
+          
+          SELECT
+            '2022' as Year,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6` 
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Average_Casual_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Max_Casual_Ride_Length,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Average_Member_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Max_Member_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+              WHERE member_casual = 'casual'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Casual,
+              (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+              WHERE member_casual = 'member'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Member
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+          GROUP BY Year
+          
+          UNION ALL 
+          
+          SELECT
+            '2023' as Year,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6` 
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Average_Casual_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+            WHERE member_casual = 'casual'
+            LIMIT 1) as Max_Casual_Ride_Length,
+            (SELECT
+            avg(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Average_Member_Ride_Length,
+            (SELECT
+            max(ride_min_length)
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+            WHERE member_casual = 'member'
+            LIMIT 1) as Max_Member_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+              WHERE member_casual = 'casual'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Casual,
+              (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+              WHERE member_casual = 'member'
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day_for_Member
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+          GROUP BY Year
+
+2) Average, Mean, Mode per Month (2020-2023) splits the averages per riders as well. This just focuses on their data in the window of a month. It also tells me what day of the week was the most frequent for them. 
+
+
+          SELECT
+            '2020' as Year,
+            EXTRACT(MONTH FROM started_at) AS Month,
+            member_casual,
+            AVG(ride_min_length) AS Avg_Ride_Length,
+            MAX(ride_min_length) AS Max_Ride_Length,
+            MIN(ride_min_length) AS Min_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+              WHERE member_casual = member_casual
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+          WHERE member_casual IN ('casual', 'member')
+          GROUP BY Year, Month, member_casual
+          
+          UNION ALL
+          
+          SELECT
+            '2021' as Year,
+            EXTRACT(MONTH FROM started_at) AS Month,
+            member_casual,
+            AVG(ride_min_length) AS Avg_Ride_Length,
+            MAX(ride_min_length) AS Max_Ride_Length,
+            MIN(ride_min_length) AS Min_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+              WHERE member_casual = member_casual
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+          WHERE member_casual IN ('casual', 'member')
+          GROUP BY Year, Month, member_casual
+          
+          UNION ALL 
+          
+          SELECT
+            '2022' as Year,
+            EXTRACT(MONTH FROM started_at) AS Month,
+            member_casual,
+            AVG(ride_min_length) AS Avg_Ride_Length,
+            MAX(ride_min_length) AS Max_Ride_Length,
+            MIN(ride_min_length) AS Min_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+              WHERE member_casual = member_casual
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+          WHERE member_casual IN ('casual', 'member')
+          GROUP BY Year, Month, member_casual
+          
+          UNION ALL 
+          
+          SELECT
+            '2023' as Year,
+            EXTRACT(MONTH FROM started_at) AS Month,
+            member_casual,
+            AVG(ride_min_length) AS Avg_Ride_Length,
+            MAX(ride_min_length) AS Max_Ride_Length,
+            MIN(ride_min_length) AS Min_Ride_Length,
+            (WITH ValueCounts AS (
+              SELECT day_of_week, COUNT(*) as frequency
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+              WHERE member_casual = member_casual
+              GROUP BY day_of_week) 
+                SELECT day_of_week
+                FROM ValueCounts
+                ORDER BY frequency DESC
+                LIMIT 1) as Most_Frequent_Day
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+          WHERE member_casual IN ('casual', 'member')
+          GROUP BY Year, Month, member_casual
+          
+          ORDER BY Year, Month, member_casual
+
+3) Average, Mean, Mode per Day (2020-2023) splits the data between members and casual riders. It also tells me the 
+total ride length of each rider type. 
+
+          SELECT
+          --First list the member I'm interested in. 
+            member_casual,
+          --Then the day of the week. GROUP BY will list individual days, so no need for another WHERE condition. 
+            day_of_week,
+          --I want the year because I'll stack all the years later. If I want to focus on just one year, I'll write another query. 
+            EXTRACT(YEAR FROM started_at) AS year,
+          --Statistical details. 
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+          --Because I'm just focused on casual riders. 
+          WHERE member_casual = 'casual' 
+          GROUP BY member_casual, day_of_week, year
+          --Repeat for member.
+            UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+          WHERE member_casual = 'member' 
+          GROUP BY member_casual, day_of_week, year
+          
+            UNION ALL 
+          --Repeat process for the other years. If I want to focus on just one year, I'll just use the saved table and query from that. 
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+          WHERE member_casual = 'casual' 
+          GROUP BY member_casual, day_of_week, year
+          
+          UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+          WHERE member_casual = 'member' 
+          GROUP BY member_casual, day_of_week, year
+          
+          UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+          WHERE member_casual = 'casual' 
+          GROUP BY member_casual, day_of_week, year
+          
+          UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+          WHERE member_casual = 'member' 
+          GROUP BY member_casual, day_of_week, year
+          
+          UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+          WHERE member_casual = 'casual' 
+          GROUP BY member_casual, day_of_week, year
+          
+          UNION ALL 
+          
+          SELECT
+            member_casual,
+            day_of_week,
+            EXTRACT(YEAR FROM started_at) AS year,
+            avg(ride_min_length) AS Avg_Ride_Length,
+            max(ride_min_length) AS Max_Ride_Length,
+            min(ride_min_length) AS Min_Ride_Length,
+            COUNT(ride_min_length) AS Total_Ride_Length
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+          WHERE member_casual = 'member' 
+          GROUP BY member_casual, day_of_week, year
+          
+          ORDER BY
+            year,
+            CASE day_of_week
+              WHEN 'Monday' THEN 1
+              WHEN 'Tuesday' THEN 2
+              WHEN 'Wednesday' THEN 3
+              WHEN 'Thursday' THEN 4
+              WHEN 'Friday' THEN 5
+              WHEN 'Saturday' THEN 6
+              WHEN 'Sunday' THEN 7
+            END;
+
+4) I was curious to how each rider type chose a bicycle. How many members rode an electric bike vs a docked bike? These are the questions I wanted to answer. 
+
+          --I need to make a temporary table. 
+          WITH TripCounts AS (
+            SELECT
+          --Here I get the year. 
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(ride_id) AS trips,
+          --I start with getting a count of how many rides used a docked bike.
+              COUNTIF(rideable_type = 'docked_bike') AS docked_bike_rides,
+          --Then I see how many of those rides were done by a casual rider.
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'casual') AS casual_docked_bikes,
+          --Count the number of member_riders.
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'member') AS member_docked_bikes,
+          --Repeat for electric bike rides, casual riders who used electric bikes, and member rides who used electric bikes.
+              COUNTIF(rideable_type = 'electric_bike') AS electric_bike_rides,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'casual') AS casual_electric_bikes,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'member') AS member_electric_bikes,
+          --Repeat for electric bike rides, casual riders who used electric bikes, and member rides who used electric bikes.
+              COUNTIF(rideable_type = 'classic_bike') AS classic_bike_rides,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'casual') AS casual_classic_bikes,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'member') AS member_classic_bikes
+          --In later subqueries, I just changed the year from the table. 
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+          GROUP BY year
+          
+          UNION ALL 
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(ride_id) AS trips,
+              COUNTIF(rideable_type = 'docked_bike') AS docked_bike_rides,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'casual') AS casual_docked_bikes,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'member') AS member_docked_bikes,
+              COUNTIF(rideable_type = 'electric_bike') AS electric_bike_rides,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'casual') AS casual_electric_bikes,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'member') AS member_electric_bikes,
+              COUNTIF(rideable_type = 'classic_bike') AS classic_bike_rides,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'casual') AS casual_classic_bikes,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'member') AS member_classic_bikes
+              FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+          GROUP BY year
+          
+          UNION ALL 
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(ride_id) AS trips,
+              COUNTIF(rideable_type = 'docked_bike') AS docked_bike_rides,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'casual') AS casual_docked_bikes,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'member') AS member_docked_bikes,
+              COUNTIF(rideable_type = 'electric_bike') AS electric_bike_rides,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'casual') AS casual_electric_bikes,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'member') AS member_electric_bikes,
+              COUNTIF(rideable_type = 'classic_bike') AS classic_bike_rides,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'casual') AS casual_classic_bikes,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'member') AS member_classic_bikes
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+          GROUP BY year
+          
+          UNION ALL 
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(ride_id) AS trips,
+              COUNTIF(rideable_type = 'docked_bike') AS docked_bike_rides,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'casual') AS casual_docked_bikes,
+              COUNTIF(rideable_type = 'docked_bike' AND member_casual = 'member') AS member_docked_bikes,
+              COUNTIF(rideable_type = 'electric_bike') AS electric_bike_rides,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'casual') AS casual_electric_bikes,
+              COUNTIF(rideable_type = 'electric_bike' AND member_casual = 'member') AS member_electric_bikes,
+              COUNTIF(rideable_type = 'classic_bike') AS classic_bike_rides,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'casual') AS casual_classic_bikes,
+              COUNTIF(rideable_type = 'classic_bike' AND member_casual = 'member') AS member_classic_bikes
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+          GROUP BY year)
+          
+          SELECT
+            year AS Year,
+            trips AS Trips,
+            docked_bike_rides AS Docked_Bike_Rides,
+            casual_docked_bikes AS Casual_Docked_Bikes,
+            member_docked_bikes AS Member_Docked_Bikes,
+            classic_bike_rides AS Classic_Bike_Rides,
+            casual_classic_bikes AS Casual_Classic_Bikes,
+            member_classic_bikes AS Member_Classic_Bikes,
+            electric_bike_rides AS Electric_Bike_Rides,
+            casual_electric_bikes AS Casual_Electric_Bikes,
+            member_electric_bikes AS Member_Electric_Bikes,
+          FROM TripCounts
+          ORDER BY Year;
+
+5) Finally, general trip counts per rider type. Here I didn't dive into the timeline of this analysis. I just got a view of how each rider type contributed to the trip count from 2020 to 2023. 
+
+          --First I want to make a temporary table that contains the year, a count of trips in that year, count of casual trips, count of member trips, and the percentage of each. 
+          WITH TripCounts AS (
+            SELECT
+          --Take the year out first. 
+              EXTRACT(YEAR FROM started_at) AS year,
+          --Count how many trips were taken.
+              COUNT(*) AS total_trips,
+          --Count how many casual riders took trips using COUNTIF.
+              COUNTIF(member_casual = 'casual') AS casual_trips,
+          --Repeat for members.
+              COUNTIF(member_casual = 'member') AS member_trips
+          --Specify the table. This is going to change for the other years. 
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v6`
+          --Specify the timeline. 
+            WHERE started_at BETWEEN '2020-04-01 00:00:30 UTC' AND '2020-12-31 23:59:59 UTC'
+          --Without GROUP BY, I'll have a lot of 2020's! 
+            GROUP BY year
+          --Start process for other years. 
+            UNION ALL
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(*) AS total_trips,
+              COUNTIF(member_casual = 'casual') AS casual_trips,
+              COUNTIF(member_casual = 'member') AS member_trips
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2021 v6`
+            WHERE started_at BETWEEN '2021-01-01 00:00:30 UTC' AND '2021-12-31 23:59:59 UTC'
+            GROUP BY year
+          
+            UNION ALL
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(*) AS total_trips,
+              COUNTIF(member_casual = 'casual') AS casual_trips,
+              COUNTIF(member_casual = 'member') AS member_trips
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2022 v6`
+            WHERE started_at BETWEEN '2022-01-01 00:00:30 UTC' AND '2022-12-31 23:59:59 UTC'
+            GROUP BY year
+          
+            UNION ALL
+          
+            SELECT
+              EXTRACT(YEAR FROM started_at) AS year,
+              COUNT(*) AS total_trips,
+              COUNTIF(member_casual = 'casual') AS casual_trips,
+              COUNTIF(member_casual = 'member') AS member_trips
+            FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
+            WHERE started_at BETWEEN '2023-01-01 00:00:30 UTC' AND '2023-12-31 23:59:59 UTC'
+            GROUP BY year
+          )
+          
+          SELECT
+          --Years were taken from the temporary tables.
+            year AS Year,
+          --The rest of the trip data was taken from temporary variables. 
+            total_trips AS Trips_Count,
+            casual_trips AS Casual_Trips,
+            member_trips AS Member_Trips,
+          --ROUND so that we don't have a long decimal. 
+            ROUND((casual_trips / total_trips) * 100, 2) AS Casual_Trips_Percent,
+            ROUND((member_trips / total_trips) * 100, 2) AS Member_Trips_Percent
+          FROM TripCounts
+          ORDER BY Year;
