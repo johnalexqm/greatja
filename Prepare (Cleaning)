@@ -88,7 +88,7 @@ After I ran this query, I noticed that the values for started_at in some of thes
 
 This will get saved now as a new table. I ran this query again for the other years. By this point, we have removed duplicates, rides with invalid times, and rows that have a null value where a value is necessary. 
 
-Finally, I can't work with ride_length because it is in an INTERVAL. So I have to convert the rows in that field using TIMESTAMP_DIFF. This way, it returns how many minutes have passed between ended_at and started_at. For now, I have ride_length, but the INTERNVAL datatype doesn't help. 
+I can't work with ride_length because it is in an INTERVAL. So I have to convert the rows in that field using TIMESTAMP_DIFF. This way, it returns how many minutes have passed between ended_at and started_at. For now, I have ride_length, but the INTERNVAL datatype doesn't help. 
           
           SELECT 
             ride_id,
@@ -108,11 +108,18 @@ Finally, I can't work with ride_length because it is in an INTERVAL. So I have t
           --Change the year to apply this to other annual datasets. 
            FROM `case-study-bike-share-406305.Annual_Trip_Data.Dedup 2022` 
 
+Upon closer observation, I realized there are some outliers. For example in 2020, there's a ride thaT took more than 12 hours. Theoretically, the rider could have used the bike all day to avoid having to find a new bike every time. At first, I thought this was an outlier, but it turns out that this practice is normal among casual riders. I'll keep those rows. There are other ones where the ride length is just 0. I'll remove those. Here's an example of removing an outlier and a removing rides where the length was just 0. 
+
+          SELECT * 
+          FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2020 v4 ` 
+          WHERE ride_min_length != 0
+
 Now I think we're ok! 
 I have done the following: 
   1) Removed rows with NULL values in important fields. 
   2) Deduped the data, which led me to doing (3). 
   3) Removed illogical rows where the start time was after the end time. 
   4) Converted a field into a more workable format.  
+  5) Removed outliers; basically where ride_min_length = 0. 
 
 I can now proceed with conducting a more comprehensive analysis. 
