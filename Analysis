@@ -575,3 +575,5 @@ total ride length of each rider type.
             ROUND((member_trips / total_trips) * 100, 2) AS Member_Trips_Percent
           FROM TripCounts
           ORDER BY Year;
+
+I have the data I need to do a comparative analysis between member and casual riders now. I will use this data in my visualizations. 
