@@ -195,11 +195,10 @@ Each average, mean, and mode pertained to the ride_min_length column I created. 
                 LIMIT 1) as Most_Frequent_Day_for_Member
           FROM `case-study-bike-share-406305.Annual_Trip_Data.Clean Data 2023 v6`
           GROUP BY Year
-
 2) Average, Mean, Mode per Month (2020-2023) splits the averages per riders as well. This just focuses on their data in the window of a month. It also tells me what day of the week was the most frequent for them. 
 
 
-          SELECT
+            SELECT
             '2020' as Year,
             EXTRACT(MONTH FROM started_at) AS Month,
             member_casual,
